@@ -1,8 +1,19 @@
 import axios from 'axios'
+import { message } from 'antd'
 export default function ajax(url, data={}, type="GET") {
-  if (type === 'GET') {
-    return axios.get(url, {params: data})
-  } else {
-    return axios.post(url, data)
-  }
+  return new Promise((resoleve, reject) => {
+    let promise
+    if (type === 'GET') {
+      promise = axios.get(url, {params: data})
+    } else {
+      promise = axios.post(url, data)
+    }
+    promise.then(res => {
+      resoleve(res.data)
+    }).catch(error => {
+      // reject(error)
+      message.error('请求出错了：' + error.message)
+    })
+  })
+  
 }

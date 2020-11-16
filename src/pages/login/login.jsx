@@ -6,7 +6,8 @@ import {
   Form,
   Icon,
   Input,
-  Button
+  Button,
+  message
 } from 'antd';
 import {reqLogin} from '../../api'
 
@@ -18,13 +19,16 @@ class Login extends Component {
     this.props.form.validateFields(async(err, values) => {
       if (!err) {
         const {username, password} = values
-        try {
-          const response = await reqLogin(username, password)
-        } catch (error) {
-          console.log('请求出错！')
+        const result = await reqLogin(username, password)
+        if (result.status ===0) {
+          message.success('Congratulations!!!!')
+          // 跳转到管理界面
+          this.props.history.replace('/')
+        } else {
+          message.error("You're wrong!!! Guess again...", 5)
         }
-        
-        console.log(response)
+      } else {
+        console.log('检验失败！')
       }
     })
     const form = this.props.form
