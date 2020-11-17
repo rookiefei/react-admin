@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import './login.less'
-import logo from './images/logo.png'
+import logo from '../../assets/images/panda.jpg'
 import {
   Form,
   Icon,
@@ -10,7 +10,9 @@ import {
   message
 } from 'antd';
 import {reqLogin} from '../../api'
-
+import memoryUtils from '../../utils/memoryUtils'
+import storageUtils from '../../utils/storageUtils'
+import { Redirect } from 'react-router-dom';
 
 class Login extends Component {
   handleSubmit = (event) => {
@@ -22,6 +24,9 @@ class Login extends Component {
         const result = await reqLogin(username, password)
         if (result.status ===0) {
           message.success('Congratulations!!!!')
+          const user = result.data
+          memoryUtils.user = user
+          storageUtils.saveUser(user)
           // 跳转到管理界面
           this.props.history.replace('/')
         } else {
@@ -52,6 +57,10 @@ class Login extends Component {
    }
  }
   render() {
+    const user = memoryUtils.user
+    if (user && user._id) {
+      return <Redirect to='/' />
+    }
     const { getFieldDecorator } = this.props.form;
     return (
       <div className="login">
