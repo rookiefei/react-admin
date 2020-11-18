@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
+import { Modal } from 'antd';
 import { withRouter } from 'react-router-dom'
+import LinkButton from '../link-button'
 import { formateDate } from '../../utils/dateUtils'
 import memoryUtils from '../../utils/memoryUtils'
 import { reqWeather } from '../../api/index'
 import menuList from '../../config/menuConfig'
 import './index.less'
+import storageUtils from '../../utils/storageUtils';
 
 class Header extends Component {
   state = {
@@ -13,7 +16,7 @@ class Header extends Component {
     weather: ''
   }
   getTime = () => {
-    setInterval(() => {
+    this.intervalId = setInterval(() => {
       this.setState({
         currentTime: formateDate(Date.now())
       })
@@ -44,11 +47,32 @@ class Header extends Component {
     })
     return title
   }
+
+  logout = () => {
+    Modal.confirm({
+      content: '再见？Are You Sure?',
+      okText: 'Ofcourse',
+      cancelText: 'Hmm...',
+      onOk: () => {
+        storageUtils.removeUser()
+        memoryUtils.user = {}
+        this.props.history.replace('/login')
+      },
+      onCancel: () => {
+        console.log('Cancel');
+      },
+    });
+  }
   // 第一次render之后执行一次，一般在这执行异步操作
   componentDidMount() {
     this.getTime()
     this.getWeather()
   }
+
+  componentWillUnmount () {
+    clearInterval(this.intervalId)
+  }
+
   render() {
     const { currentTime, dayPictureUrl, weather } = this.state
     const username = memoryUtils.user.username
@@ -57,7 +81,7 @@ class Header extends Component {
       <div className="header">
         <div className="header-top">
           <span>欢迎, {username}</span>
-          <a >退出</a>
+          <LinkButton onClick={this.logout}>退出</LinkButton>
         </div>
         <div className="header-bottom">
           <div className="header-bottom-left">{title}</div>

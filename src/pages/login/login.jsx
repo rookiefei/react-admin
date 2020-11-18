@@ -16,7 +16,6 @@ import { Redirect } from 'react-router-dom';
 
 class Login extends Component {
   handleSubmit = (event) => {
-    console.log(event)
     event.preventDefault()
     this.props.form.validateFields(async(err, values) => {
       if (!err) {
@@ -74,6 +73,7 @@ class Login extends Component {
             <Form.Item>
               {getFieldDecorator('username', {
                 // 声明式验证：直接使用别人定义好的验证规则进行验证
+                initialValue: 'admin',
                 rules: [
                   { required: true, whitespace: true, message: 'Please input your username!' },
                   { min: 2, message: "最少输入2个字符"},
@@ -89,6 +89,7 @@ class Login extends Component {
             </Form.Item>
             <Form.Item>
               {getFieldDecorator('password', {
+                initialValue: 'admin',
                 rules: [{ validator: this.validatePwd }],
               })(
                 <Input
