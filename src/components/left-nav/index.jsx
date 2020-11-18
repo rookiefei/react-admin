@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { Menu, Icon } from 'antd';
 import './index.less'
 import panda from '../../assets/images/panda.jpg'
@@ -32,7 +32,7 @@ class LeftNav extends Component {
               </span>
             }
           >
-            {this.getMenuNodes(item.children)}
+            {this.getMenuNodes_map(item.children)}
           </SubMenu>
         )
       }
@@ -41,7 +41,6 @@ class LeftNav extends Component {
   // reduce实现
   getMenuNodes = (menuList) => {
     return menuList.reduce((pre, item) => {
-      console.log(pre)
       if (!item.children) {
         pre.push((
           <Menu.Item key={item.key}>
@@ -52,6 +51,10 @@ class LeftNav extends Component {
           </Menu.Item>
         ))
       } else {
+        const cItem = item.children.find(cItem => cItem.key === this.path)
+        if (cItem) {
+          this.openKey = item.key
+        }
         pre.push((
           <SubMenu
             key={item.key}
@@ -69,7 +72,16 @@ class LeftNav extends Component {
       return pre
     }, [])
   }
+  componentWillMount () {
+    // 当前路径
+    this.path = this.props.location.pathname
+
+    this.menuNodes = this.getMenuNodes(menuList)
+  }
   render() {
+    const path = this.props.location.pathname
+    console.log(path)
+    const openKey = this.openKey
     return (
       <div className="left-nav">
         <Link to="/" className="left-nav-header">
@@ -77,45 +89,17 @@ class LeftNav extends Component {
           <h1>Panda-admin</h1>
         </Link>
         <Menu
-          defaultSelectedKeys={['/home']}
-          defaultOpenKeys={['sub1']}
+          selectedKeys={[path]}
+          defaultOpenKeys={[openKey]}
           mode="inline"
           theme="dark"
         >
-          {/* <Menu.Item key="/home">
-            <Link to='/home'>
-              <Icon type="home" />
-              <span>首页</span>
-            </Link>
-          </Menu.Item>
-          <SubMenu
-            key="sub1"
-            title={
-              <span>
-                <Icon type="mail" />
-                <span>商品</span>
-              </span>
-            }
-          >
-            <Menu.Item key="/category">
-              <Link to='/category'>
-                <Icon type="home" />
-                <span>品类管理</span>
-              </Link>
-            </Menu.Item>
-            <Menu.Item key="/product">
-              <Link to='/product'>
-                <Icon type="home" />
-                <span>商品管理</span>
-              </Link>
-            </Menu.Item>
-          </SubMenu> */}
-          {this.getMenuNodes(menuList)}
-
+          {this.menuNodes}
         </Menu>
       </div>
     );
   }
 }
 
-export default LeftNav;
+// withRouter: 包装非路由组件，返回一个新的组件，新的组件向非路由组件传递三个属性：history/location/match
+export default withRouter(LeftNav);
