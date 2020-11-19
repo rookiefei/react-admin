@@ -12,6 +12,16 @@ export const reqLogin = (username, password) => ajax('/login', { username, passw
 // 添加用户
 export const reqAddUser = (user) => ajax('/manage/user/add', user, 'POST')
 
+// category
+export const reqCategorys = (parentId) => ajax('/manage/category/list', {parentId})
+export const reqAddCategorys = (categoryName, parentId) => ajax('/manage/category/add', {categoryName, parentId}, 'POST')
+export const reqUpdateCategorys = (categoryId, categoryName) => ajax('/manage/category/update', {categoryId, categoryName}, 'POST')
+
+
+
+
+
+
 // jsonp请求的接口请求函数
 export const reqWeather = (city) => {
   return new Promise((resolve, reject) => {
