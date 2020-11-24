@@ -8,11 +8,16 @@ import {
   Table
 } from 'antd'
 import LinkButton from '../../components/link-button'
-import {reqProducts} from '../../api/index.js'
+import {reqProducts, reqSearchProducts} from '../../api/index.js'
+import {PAGE_SIZE} from '../../utils/constants'
 
 class ProductHome extends Component {
   state = {
-    products: []
+    products: [],
+    total: 0,
+    loading: false,
+    searchName: '',
+    searchType: 'productName',
   }
   initColumns = () => {
     this.columns = [
@@ -56,22 +61,55 @@ class ProductHome extends Component {
       }
     ];
   }
+
+  getProducts = async(pageNum) => {
+    this.setState({loading: true})
+    const {searchName, searchType} = this.state
+    let result
+    if (searchName) {
+      result =  await reqSearchProducts(pageNum, PAGE_SIZE, searchName, searchType)
+    } else {
+      result = await reqProducts(pageNum, PAGE_SIZE)
+    }
+    this.setState({loading: false})
+    if (result.status === 0) {
+      const {list, total} = result.data
+      this.setState({
+        total,
+        products: list
+      })
+    }
+  }
+
   componentWillMount () {
     this.initColumns()
   }
+
+  componentDidMount () {
+    this.getProducts(1)
+  }
+
   render() {
-    const { products } = this.state
+    const { products, total, loading, searchType, searchName } = this.state
     
     
     
     const title = (
       <span>
-        <Select value='1' style={{width: 150}}>
-          <Select.Option value="1">按名称搜索</Select.Option>
-          <Select.Option value="2">按名称搜索</Select.Option>
+        <Select
+          value={searchType}
+          style={{width: 150}}
+          onChange={value => this.setState({searchType: value})}>
+          <Select.Option value="productName">按名称搜索</Select.Option>
+          <Select.Option value="productDesc">按描述搜索</Select.Option>
         </Select>
-        <Input placeholder="关键字" style={{width: 150, margin: '0 15px'}}></Input>
-        <Button type="primary">搜索</Button>
+        <Input
+          placeholder="关键字"
+          style={{width: 150, margin: '0 15px'}}
+          value={searchName}
+          onChange={e => this.setState({searchName: e.target.value})}
+        />
+        <Button type="primary" onClick={() => {this.getProducts(1)}}>搜索</Button>
       </span>
     )
     const extra = (
@@ -84,9 +122,16 @@ class ProductHome extends Component {
       <Card title={title} extra={extra}>
         <Table
           bordered
+          loading={loading}
           rowKey="_id"
           dataSource={products}
           columns={this.columns}
+          pagination={{
+            defaultPageSize: 3,
+            PAGE_SIZE,
+            total,
+            onChange: this.getProducts
+          }}
         />
       </Card>
     );

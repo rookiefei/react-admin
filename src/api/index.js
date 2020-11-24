@@ -19,6 +19,11 @@ export const reqUpdateCategorys = (categoryId, categoryName) => ajax('/manage/ca
 
 // product
 export const reqProducts = (pageNum, pageSize) => ajax('/manage/product/list', {pageNum, pageSize})
+export const reqSearchProducts = (pageNum, pageSize, searchName, searchType) => ajax('/manage/product/search', {
+  pageNum,
+  pageSize,
+  [searchType]: searchName
+})
 
 
 
